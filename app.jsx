@@ -223,6 +223,9 @@ function ToolCards({ type }) {
 }
 
 function VideoModal({ video, onClose }) {
+  const videoId = video.url.split("/embed/")[1]?.split("?")[0];
+  const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
   useEffect(() => {
     const handleKey = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handleKey);
@@ -239,10 +242,13 @@ function VideoModal({ video, onClose }) {
           </div>
           <button onClick={onClose} style={{ background: "rgba(255,255,255,.12)", border: "none", borderRadius: "50%", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff", fontSize: 16, flexShrink: 0 }}>✕</button>
         </div>
-        <div style={{ position: "relative", paddingBottom: "56.25%", background: "#000", borderRadius: 12, overflow: "hidden" }}>
+        <div style={{ position: "relative", paddingBottom: "56.25%", background: "#111", borderRadius: 12, overflow: "hidden" }}>
           <iframe src={video.url + "?autoplay=1&rel=0"} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen title={video.t} />
         </div>
-        <div style={{ marginTop: 8, fontSize: 10, color: "rgba(255,255,255,.25)", textAlign: "center" }}>Tippe außerhalb oder drücke ESC zum Schließen</div>
+        <a href={watchUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 10, background: "#ff0000", borderRadius: 8, padding: "11px 16px", color: "#fff", fontFamily: "'DM Sans',system-ui", fontSize: 13, fontWeight: 600, textDecoration: "none", width: "100%" }}>
+          ▶ Auf YouTube öffnen (falls Video nicht lädt)
+        </a>
+        <div style={{ marginTop: 6, fontSize: 10, color: "rgba(255,255,255,.25)", textAlign: "center" }}>Tippe außerhalb oder drücke ESC zum Schließen</div>
       </div>
     </div>
   );
