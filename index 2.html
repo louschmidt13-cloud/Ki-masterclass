@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KI Masterclass">
+<meta name="theme-color" content="#0c0a1a">
+<meta name="mobile-web-app-capable" content="yes">
+<title>KI Masterclass</title>
+<style>
+  html, body, #root { margin:0; padding:0; min-height:100%; background:#0c0a1a; }
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  #loading { display:flex; align-items:center; justify-content:center; height:100vh; color:#8b5cf6; font-family:monospace; font-size:14px; flex-direction:column; gap:12px; }
+  #loading .spinner { width:32px; height:32px; border:3px solid rgba(139,92,246,.2); border-top-color:#8b5cf6; border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="root"><div id="loading"><div class="spinner"></div>KI Masterclass lädt...</div></div>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script>
+// Load external JSX file and compile it
+fetch('app.jsx').then(r => r.text()).then(code => {
+  var transformed = Babel.transform(code, { presets: ['react'] }).code;
+  var script = document.createElement('script');
+  script.textContent = transformed;
+  document.body.appendChild(script);
+}).catch(err => {
+  document.getElementById('root').innerHTML = '<div style="color:red;padding:20px;font-family:sans-serif">Fehler: ' + err.message + '</div>';
+});
+</script>
+</body>
+</html>
