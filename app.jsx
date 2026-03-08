@@ -222,6 +222,32 @@ function ToolCards({ type }) {
   return null;
 }
 
+function VideoModal({ video, onClose }) {
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.93)", zIndex: 1000, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 14px", animation: "fadeIn .2s ease" }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 700, position: "relative" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, gap: 10 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{video.t}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,.4)", marginTop: 2 }}>{video.ch}</div>
+          </div>
+          <button onClick={onClose} style={{ background: "rgba(255,255,255,.12)", border: "none", borderRadius: "50%", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff", fontSize: 16, flexShrink: 0 }}>✕</button>
+        </div>
+        <div style={{ position: "relative", paddingBottom: "56.25%", background: "#000", borderRadius: 12, overflow: "hidden" }}>
+          <iframe src={video.url + "?autoplay=1&rel=0"} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen title={video.t} />
+        </div>
+        <div style={{ marginTop: 8, fontSize: 10, color: "rgba(255,255,255,.25)", textAlign: "center" }}>Tippe außerhalb oder drücke ESC zum Schließen</div>
+      </div>
+    </div>
+  );
+}
+
 function Quiz({ moduleId, color, onPass }) {
   const questions = QUIZZES[moduleId] || [];
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -311,6 +337,7 @@ function App() {
   const [praxisCatIdx, setPraxisCatIdx] = useState(0);
   const [praxisItemIdx, setPraxisItemIdx] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [videoModal, setVideoModal] = useState(null);
   const mainRef = useRef(null);
 
   useEffect(() => {
@@ -449,6 +476,7 @@ function App() {
   return (
     <div style={{ minHeight: "100dvh", background: "#0c0a1a", fontFamily: "'DM Sans',system-ui,sans-serif", color: "#fff", display: "flex", flexDirection: "column" }}>
       <style>{cssBlock}</style>
+      {videoModal && <VideoModal video={videoModal} onClose={() => setVideoModal(null)} />}
 
       <header style={{ background: "rgba(12,10,26,.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,.06)", padding: "8px 10px", display: "flex", alignItems: "center", gap: 6, position: "sticky", top: 0, zIndex: 200 }}>
         <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", color: "#fff", fontSize: 18, cursor: "pointer", padding: "4px 5px", lineHeight: 1, minWidth: 28 }}>{menuOpen ? "✕" : "☰"}</button>
@@ -656,17 +684,24 @@ function App() {
 
             {tab === "videos" && (
               <div style={{ display: "grid", gap: 10, animation: "fadeIn .2s ease" }}>
-                {mod.vids.map((v, i) => (
-                  <div key={i} style={{ background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, overflow: "hidden" }}>
-                    <div style={{ position: "relative", paddingBottom: "56.25%", background: "#000" }}>
-                      <iframe src={v.url} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen title={v.t} />
-                    </div>
-                    <div style={{ padding: "8px 10px" }}>
-                      <div style={{ fontSize: 12, fontWeight: 600 }}>{v.t}</div>
-                      <div style={{ fontSize: 9, color: "rgba(255,255,255,.3)", marginTop: 1 }}>{v.ch}</div>
-                    </div>
-                  </div>
-                ))}
+                {mod.vids.map((v, i) => {
+                  const videoId = v.url.split("/embed/")[1]?.split("?")[0];
+                  const thumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                  return (
+                    <button key={i} onClick={() => setVideoModal(v)} style={{ background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.07)", borderRadius: 10, overflow: "hidden", cursor: "pointer", textAlign: "left", padding: 0, width: "100%", display: "block" }}>
+                      <div style={{ position: "relative" }}>
+                        <img src={thumb} alt={v.t} style={{ width: "100%", display: "block", aspectRatio: "16/9", objectFit: "cover" }} onError={e => { e.target.style.display = "none"; }} />
+                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,.25)" }}>
+                          <div style={{ width: 54, height: 54, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, paddingLeft: 3 }}>▶</div>
+                        </div>
+                      </div>
+                      <div style={{ padding: "8px 10px" }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>{v.t}</div>
+                        <div style={{ fontSize: 9, color: "rgba(255,255,255,.3)", marginTop: 1 }}>{v.ch}</div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
 
